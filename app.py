@@ -310,7 +310,7 @@ try:
         ])
     st.markdown('</div>', unsafe_allow_html=True)
 
-    predict_clicked = st.button("🚀  Predict Target Outputs", type="primary", use_container_width=True)
+    predict_clicked = st.button(" Predict Target Outputs", type="primary", use_container_width=True)
 
     if predict_clicked:
         input_dict = {
