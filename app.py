@@ -27,15 +27,15 @@ if is_dark:
     """
     text_color = "#E8E9ED"
     subtitle_color = "#8B92A6"
-    card_bg = "linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015))"
-    card_border = "rgba(255,255,255,0.08)"
-    card_border_hover = "rgba(124, 77, 255, 0.35)"
-    input_bg = "#14161F"
-    input_border = "#262A38"
+    card_bg = "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015))"
+    card_border = "rgba(124, 77, 255, 0.10)"
+    card_border_hover = "rgba(124, 77, 255, 0.28)"
+    input_bg = "#15171F"
+    input_border = "rgba(124, 77, 255, 0.14)"
     label_color = "#9AA1B4"
-    section_title_color = "#FFFFFF"
-    footer_color = "#575E70"
-    shadow = "0 10px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)"
+    section_title_color = "#EDEDF2"
+    footer_color = "#565C6E"
+    shadow = "0 10px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03)"
 else:
     bg = "#F7F7FB"
     bg_gradient = """
@@ -43,17 +43,17 @@ else:
         radial-gradient(circle at 85% 90%, rgba(0, 191, 165, 0.08) 0%, transparent 45%),
         #F7F7FB
     """
-    text_color = "#1E2130"
+    text_color = "#2B2E3B"
     subtitle_color = "#6B7280"
-    card_bg = "linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85))"
-    card_border = "rgba(124, 77, 255, 0.12)"
-    card_border_hover = "rgba(124, 77, 255, 0.4)"
+    card_bg = "linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,253,0.85))"
+    card_border = "rgba(124, 77, 255, 0.10)"
+    card_border_hover = "rgba(124, 77, 255, 0.30)"
     input_bg = "#FFFFFF"
-    input_border = "#E2E4EE"
-    label_color = "#5B6072"
-    section_title_color = "#1E2130"
-    footer_color = "#9CA0AE"
-    shadow = "0 10px 26px rgba(124, 77, 255, 0.10), inset 0 1px 0 rgba(255,255,255,0.6)"
+    input_border = "rgba(124, 77, 255, 0.12)"
+    label_color = "#6B7280"
+    section_title_color = "#2B2E3B"
+    footer_color = "#A3A7B5"
+    shadow = "0 10px 26px rgba(124, 77, 255, 0.08), inset 0 1px 0 rgba(255,255,255,0.5)"
 
 st.markdown(f"""
 <style>
@@ -193,10 +193,14 @@ st.markdown(f"""
         color: white;
         border: none;
         border-radius: 13px;
-        padding: 0.85rem 0;
+        padding: 0.85rem 1rem;
         font-size: 1.02rem;
         font-weight: 700;
         letter-spacing: 0.3px;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         transition: all 0.25s ease;
         box-shadow: 0 6px 20px rgba(124, 77, 255, 0.25);
     }}
@@ -217,7 +221,7 @@ st.markdown(f"""
     }}
     div[data-testid="stMetric"] {{
         background: linear-gradient(180deg, rgba(0, 191, 165, 0.10), rgba(124, 77, 255, 0.06));
-        border: 1px solid rgba(0, 191, 165, 0.30);
+        border: 1px solid rgba(0, 191, 165, 0.25);
         border-radius: 18px;
         padding: 1.3rem 0.6rem;
         text-align: center;
@@ -306,7 +310,7 @@ try:
         ])
     st.markdown('</div>', unsafe_allow_html=True)
 
-    predict_clicked = st.button("  Predict Target Outputs  ", type="primary")
+    predict_clicked = st.button("🚀  Predict Target Outputs", type="primary", use_container_width=True)
 
     if predict_clicked:
         input_dict = {
