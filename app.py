@@ -10,9 +10,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ============================================================
-# 🎨 Custom Dark Theme CSS
-# ============================================================
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
@@ -35,10 +32,26 @@ st.markdown("""
 
     .block-container {
         padding-top: 2.5rem;
-        max-width: 900px;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        max-width: 1100px;
     }
 
-    /* ---------- Hero header ---------- */
+    div[data-testid="column"] {
+        padding: 0 0.4rem;
+    }
+
+    div[data-baseweb="select"],
+    div[data-baseweb="select"] > div,
+    .stNumberInput,
+    .stTextInput {
+        width: 100% !important;
+    }
+
+    div[data-testid="stVerticalBlock"] > div {
+        gap: 0.6rem;
+    }
+
     .hero-wrap {
         text-align: center;
         margin-bottom: 2.2rem;
@@ -74,7 +87,6 @@ st.markdown("""
         line-height: 1.6;
     }
 
-    /* ---------- Glass cards ---------- */
     .glass-card {
         background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015));
         backdrop-filter: blur(12px);
@@ -110,7 +122,6 @@ st.markdown("""
         font-size: 1rem;
     }
 
-    /* ---------- Inputs ---------- */
     div[data-baseweb="select"] > div, .stNumberInput input, .stTextInput input {
         background-color: #14161F !important;
         border: 1px solid #262A38 !important;
@@ -128,7 +139,6 @@ st.markdown("""
         font-size: 0.86rem !important;
     }
 
-    /* ---------- Button ---------- */
     div.stButton > button {
         width: 100%;
         background: linear-gradient(100deg, #7C4DFF, #5B2EFF);
@@ -151,7 +161,6 @@ st.markdown("""
         transform: translateY(0px);
     }
 
-    /* ---------- Results ---------- */
     .result-title {
         text-align: center;
         font-size: 1.3rem;
@@ -179,7 +188,6 @@ st.markdown("""
 
     hr { border-color: rgba(255,255,255,0.06) !important; }
 
-    /* ---------- Footer note ---------- */
     .footer-note {
         text-align: center;
         color: #575E70;
@@ -190,9 +198,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ============================================================
-# 🧬 Header
-# ============================================================
 st.markdown("""
 <div class="hero-wrap">
     <div class="hero-badge">🧬 AI-Powered Biodistribution Model</div>
@@ -214,7 +219,6 @@ def load_nano_model():
 try:
     model = load_nano_model()
 
-    # ---------------- Physical Properties ----------------
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     st.markdown('<div class="section-label"><span class="section-icon">⚙️</span> Physical Properties</div>', unsafe_allow_html=True)
     col1, col2 = st.columns(2)
@@ -226,7 +230,6 @@ try:
         zeta_cat = st.selectbox("Zeta Category", ["", "Positive", "Negative", "Neutral"])
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # ---------------- Composition ----------------
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     st.markdown('<div class="section-label"><span class="section-icon">🧪</span> Composition & Coating</div>', unsafe_allow_html=True)
     col3, col4 = st.columns(2)
@@ -239,7 +242,6 @@ try:
         ])
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # ---------------- Dosing & Target ----------------
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     st.markdown('<div class="section-label"><span class="section-icon">💉</span> Dosing & Target</div>', unsafe_allow_html=True)
     col5, col6 = st.columns(2)
