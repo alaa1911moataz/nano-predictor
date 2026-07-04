@@ -147,7 +147,7 @@ try:
     st.markdown('</div>', unsafe_allow_html=True)
 
     # 8. Execution Handle on Screening Button Trigger
-    predict_clicked = st.button("🧬 Classification Screening", type="primary", use_container_width=True)
+    predict_clicked = st.button(" Classification Screening", type="primary", use_container_width=True)
 
     if predict_clicked:
         # Building clean evaluation dictionary mapping
@@ -195,12 +195,12 @@ try:
         selectivity_class = "status-high" if prediction[0][1] == 1 else "status-low"
 
         # Rendering screening glassmorphic results widgets
-        st.markdown('<div class="result-title">🎯 AI Screening Analysis</div>', unsafe_allow_html=True)
+        st.markdown('<div class="result-title"> AI Screening Analysis</div>', unsafe_allow_html=True)
         res_col1, res_col2 = st.columns(2)
         with res_col1:
-            st.markdown(f'<div class="metric-card-custom"><div class="metric-label-custom">📊 Tumor Retention Potential</div><div class="{tumor_class}">{tumor_res}</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="metric-card-custom"><div class="metric-label-custom"> Tumor Retention Potential</div><div class="{tumor_class}">{tumor_res}</div></div>', unsafe_allow_html=True)
         with res_col2:
-            st.markdown(f'<div class="metric-card-custom"><div class="metric-label-custom">🎯 Targeting Selectivity Index</div><div class="{selectivity_class}">{selectivity_res}</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="metric-card-custom"><div class="metric-label-custom"> Targeting Selectivity Index</div><div class="{selectivity_class}">{selectivity_res}</div></div>', unsafe_allow_html=True)
 
         # 9. Reference Guide Context Section (Scientific Support Documentation)
         st.markdown("<br><hr>", unsafe_allow_html=True)
