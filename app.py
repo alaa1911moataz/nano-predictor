@@ -137,7 +137,7 @@ try:
         tumor_site = st.selectbox("Tumor Site", ["", "Cervix", "Brain", "Breast", "Colon", "Liver", "Lungs", "Lymphoma", "Ovary", "Pancreas", "Prostate", "Sarcoma", "Skin"])
     st.markdown('</div>', unsafe_allow_html=True)
 
-    predict_clicked = st.button("🧬 Classification Screening", type="primary", use_container_width=True)
+    predict_clicked = st.button(" Classification Screening", type="primary", use_container_width=True)
 
     if predict_clicked:
         input_dict = {
