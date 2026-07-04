@@ -183,12 +183,12 @@ try:
         tumor_class = "status-high" if prediction[0][0] == 1 else "status-low"
         selectivity_class = "status-high" if prediction[0][1] == 1 else "status-low"
 
-        st.markdown('<div class="result-title">🎯 AI Screening Analysis</div>', unsafe_allow_html=True)
+        st.markdown('<div class="result-title"> AI Screening Analysis</div>', unsafe_allow_html=True)
         res_col1, res_col2 = st.columns(2)
         with res_col1:
-            st.markdown(f'<div class="metric-card-custom"><div class="metric-label-custom">📊 Tumor Retention Potential</div><div class="{tumor_class}">{tumor_res}</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="metric-card-custom"><div class="metric-label-custom"> Tumor Retention Potential</div><div class="{tumor_class}">{tumor_res}</div></div>', unsafe_allow_html=True)
         with res_col2:
-            st.markdown(f'<div class="metric-card-custom"><div class="metric-label-custom">🎯 Targeting Selectivity Index</div><div class="{selectivity_class}">{selectivity_res}</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="metric-card-custom"><div class="metric-label-custom"> Targeting Selectivity Index</div><div class="{selectivity_class}">{selectivity_res}</div></div>', unsafe_allow_html=True)
 
     st.markdown('<div class="footer-note">Powered by XGBoost Classifier · Designed by Alaa Moataz</div>', unsafe_allow_html=True)
 
