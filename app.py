@@ -67,7 +67,6 @@ st.markdown(f"""
     div[data-testid="column"] {{ padding: 0 0.4rem; }}
     div[data-baseweb="select"], div[data-baseweb="select"] > div, .stNumberInput, .stTextInput {{ width: 100% !important; }}
     div[data-testid="stVerticalBlock"] > div {{ gap: 0.6rem; }}
-    .theme-toggle-row {{ display: flex; justify-content: flex-end; margin-bottom: 0.5rem; }}
     
     .hero-wrap {{ text-align: center; margin-bottom: 2.2rem; }}
     .hero-badge {{ display: inline-block; padding: 0.35rem 1rem; border-radius: 999px; background: rgba(124, 77, 255, 0.10); border: 1px solid rgba(124, 77, 255, 0.30); color: #7C4DFF; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1rem; }}
@@ -88,7 +87,6 @@ st.markdown(f"""
     
     .result-title {{ text-align: center; font-size: 1.4rem; font-weight: 700; color: {section_title_color}; margin: 1.8rem 0 1rem 0; }}
     
-    /* تصميم مخصص لكروت عرض التصنيف الاحترافي */
     .metric-card-custom {{
         background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005));
         border: 1px solid {card_border};
@@ -121,12 +119,14 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 @st.cache_resource
-def load_nano_model():
-    # استدعاء ملف الـ Classifier الجديد
-    return joblib.load('xgboost_nano_classifier_model.pkl')
+def load_nano_resources():
+    # تحميل الموديل والـ preprocessor بشكل منفصل لتفادي خطأ الكلاسات
+    model = joblib.load('xgboost_nano_classifier_model.pkl')
+    preprocessor = joblib.load('nano_preprocessor.pkl')
+    return model, preprocessor
 
 try:
-    model = load_nano_model()
+    model, preprocessor = load_nano_resources()
 
     # Form Fields
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
@@ -168,10 +168,9 @@ try:
     predict_clicked = st.button("🧬 Classification Screening", type="primary", use_container_width=True)
 
     if predict_clicked:
-        # بناء الـ DataFrame بنفس ترتيب ومسميات الـ Features المطلوبة للموديل الجديد
         input_dict = {
             'NP_Class': np_class if np_class != "" else np.nan,
-            'INPs_Core': np.nan, # ميزة افتراضية لحماية الـ Pipeline
+            'INPs_Core': np.nan, 
             'Shape': shape if shape != "" else np.nan,
             'Size (nm)': float(size),
             'Size_Category': np.nan,
@@ -186,9 +185,14 @@ try:
         }
 
         input_df = pd.DataFrame([input_dict])
-        prediction = model.predict(input_df)
+        
+        # تشفير البيانات المدخلة أولاً باستخدام المعالج المحفوظ بره
+        input_encoded = preprocessor.transform(input_df)
+        
+        # تنفيذ عملية التوقع للتصنيف الصافي
+        prediction = model.predict(input_encoded)
 
-        # استخراج النتائج (0 تعني Low، و 1 تعني High)
+        # استخراج الفئات الذكية للعرض
         tumor_res = "High Retention" if prediction[0][0] == 1 else "Low Retention"
         selectivity_res = "High Selectivity" if prediction[0][1] == 1 else "Low Selectivity"
         
