@@ -209,7 +209,7 @@ try:
         ref_col1, ref_col2 = st.columns(2)
         with ref_col1:
             st.info(
-                ">>> **Tumor Retention Classification:**\n\n"
+                " **Tumor Retention Classification:**\n\n"
                 "* **High Retention:** The particle achieves a bio-distribution efficiency **above or equal to the dataset median**. "
                 "This indicates highly promising tumor accumulation suitable for therapeutic delivery.\n"
                 "* **Low Retention:** The accumulation drops **below the dataset median**, suggesting the formulation might need "
@@ -218,7 +218,7 @@ try:
             
         with ref_col2:
             st.success(
-                ">>> **Targeting Selectivity Index Classification:**\n\n"
+                " **Targeting Selectivity Index Classification:**\n\n"
                 "* **High Selectivity:** The ratio of nano-particle accumulation in the tumor versus healthy organs is **optimal (>= Median)**, "
                 "signaling minimized off-target side effects.\n"
                 "* **Low Selectivity:** The off-target accumulation is relatively high. Consider modifying the **Shell Type** or targeting ligands "
