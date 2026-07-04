@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import joblib
 
+# 1. Page Configuration
 st.set_page_config(
     page_title="Nano-Drug Delivery Predictor",
     page_icon="🧬",
@@ -10,6 +11,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+# 2. Theme Management Initialization
 if "theme" not in st.session_state:
     st.session_state.theme = "light"
 
@@ -18,6 +20,7 @@ def toggle_theme():
 
 is_dark = st.session_state.theme == "dark"
 
+# 3. Dynamic UI Theme Styling Rules
 if is_dark:
     bg = "#0A0C12"
     bg_gradient = "radial-gradient(circle at 15% 10%, rgba(124, 77, 255, 0.15) 0%, transparent 40%), radial-gradient(circle at 85% 90%, rgba(0, 224, 198, 0.12) 0%, transparent 40%), #0A0C12"
@@ -47,6 +50,7 @@ else:
     footer_color = "#A3A7B5"
     shadow = "0 10px 26px rgba(124, 77, 255, 0.08), inset 0 1px 0 rgba(255,255,255,0.5)"
 
+# 4. Inject Premium Custom CSS Styles
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
@@ -82,6 +86,7 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
+# 5. Header Components and Theme Toggle Button
 toggle_col1, toggle_col2 = st.columns([6, 1])
 with toggle_col2:
     st.button("🌙 Dark" if not is_dark else "☀️ Light", on_click=toggle_theme, use_container_width=True)
@@ -96,6 +101,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# 6. Optimized Data Loading Resource Cache
 @st.cache_resource
 def load_nano_resources():
     model = joblib.load('xgboost_nano_classifier_model.pkl')
@@ -105,7 +111,8 @@ def load_nano_resources():
 try:
     model, encoding_maps = load_nano_resources()
 
-    # Form Cards
+    # 7. Web Interactive Feature Form Construction
+    # Card A: Physical Properties
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     st.markdown('<div class="section-label"><span class="section-icon">⚙️</span> Physical Properties</div>', unsafe_allow_html=True)
     col1, col2 = st.columns(2)
@@ -117,6 +124,7 @@ try:
         zeta_cat = st.selectbox("Zeta Category", ["", "Positive", "Negative", "Neutral"])
     st.markdown('</div>', unsafe_allow_html=True)
 
+    # Card B: Composition & Coating
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     st.markdown('<div class="section-label"><span class="section-icon">🧪</span> Composition & Coating</div>', unsafe_allow_html=True)
     col3, col4 = st.columns(2)
@@ -127,6 +135,7 @@ try:
         shell_type = st.selectbox("Shell Type", ["", "PEG", "Cellulose", "Dextran", "Fuc", "HA", "HPMA", "No Stealth Effect", "PKP"])
     st.markdown('</div>', unsafe_allow_html=True)
 
+    # Card C: Dosing & Target Context
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     st.markdown('<div class="section-label"><span class="section-icon">💉</span> Dosing & Target</div>', unsafe_allow_html=True)
     col5, col6 = st.columns(2)
@@ -137,9 +146,11 @@ try:
         tumor_site = st.selectbox("Tumor Site", ["", "Cervix", "Brain", "Breast", "Colon", "Liver", "Lungs", "Lymphoma", "Ovary", "Pancreas", "Prostate", "Sarcoma", "Skin"])
     st.markdown('</div>', unsafe_allow_html=True)
 
-    predict_clicked = st.button(" Classification Screening", type="primary", use_container_width=True)
+    # 8. Execution Handle on Screening Button Trigger
+    predict_clicked = st.button("🧬 Classification Screening", type="primary", use_container_width=True)
 
     if predict_clicked:
+        # Building clean evaluation dictionary mapping
         input_dict = {
             'NP_Class': str(np_class).strip() if np_class != "" else "nan",
             'INPs_Core': "nan", 
@@ -156,6 +167,7 @@ try:
             'Tumor Site': str(tumor_site).strip() if tumor_site != "" else "nan"
         }
 
+        # Safe feature text mapping based on Pandas custom dictionary maps
         encoded_dict = {}
         categorical_features = ['NP_Class', 'INPs_Core', 'Shape', 'Size_Category', 'Zeta_Category', 'Organ or tissue', 'HAS_PEG', 'Shell Type', 'Tumor Site']
         
@@ -165,7 +177,7 @@ try:
             else:
                 encoded_dict[col] = val
 
-        # تحويل لـ DataFrame بنفس الترتيب الهندسي للـ Features
+        # Reindexing to match rigorous algorithmic structural feature order
         ordered_features = [
             'NP_Class', 'INPs_Core', 'Shape', 'Size (nm)', 'Size_Category',
             'Zeta Potential (mv)', 'Zeta_Category', 'Organ or tissue', 'HAS_PEG', 
@@ -173,15 +185,16 @@ try:
         ]
         input_df = pd.DataFrame([encoded_dict])[ordered_features]
         
-      
+        # Parallel model inference execution
         prediction = model.predict(input_df)
 
+        # Parsing targets status definitions
         tumor_res = "High Retention" if prediction[0][0] == 1 else "Low Retention"
         selectivity_res = "High Selectivity" if prediction[0][1] == 1 else "Low Selectivity"
         tumor_class = "status-high" if prediction[0][0] == 1 else "status-low"
         selectivity_class = "status-high" if prediction[0][1] == 1 else "status-low"
 
-      
+        # Rendering screening glassmorphic results widgets
         st.markdown('<div class="result-title">🎯 AI Screening Analysis</div>', unsafe_allow_html=True)
         res_col1, res_col2 = st.columns(2)
         with res_col1:
@@ -189,14 +202,14 @@ try:
         with res_col2:
             st.markdown(f'<div class="metric-card-custom"><div class="metric-label-custom">🎯 Targeting Selectivity Index</div><div class="{selectivity_class}">{selectivity_res}</div></div>', unsafe_allow_html=True)
 
-       
+        # 9. Reference Guide Context Section (Scientific Support Documentation)
         st.markdown("<br><hr>", unsafe_allow_html=True)
-        st.markdown("### 📚 Evaluation Reference Guide")
+        st.markdown("###  Evaluation Reference Guide")
         
         ref_col1, ref_col2 = st.columns(2)
         with ref_col1:
             st.info(
-                "💡 **Tumor Retention Classification:**\n\n"
+                ">>> **Tumor Retention Classification:**\n\n"
                 "* **High Retention:** The particle achieves a bio-distribution efficiency **above or equal to the dataset median**. "
                 "This indicates highly promising tumor accumulation suitable for therapeutic delivery.\n"
                 "* **Low Retention:** The accumulation drops **below the dataset median**, suggesting the formulation might need "
@@ -205,7 +218,7 @@ try:
             
         with ref_col2:
             st.success(
-                "💡 **Targeting Selectivity Index Classification:**\n\n"
+                ">>> **Targeting Selectivity Index Classification:**\n\n"
                 "* **High Selectivity:** The ratio of nano-particle accumulation in the tumor versus healthy organs is **optimal (>= Median)**, "
                 "signaling minimized off-target side effects.\n"
                 "* **Low Selectivity:** The off-target accumulation is relatively high. Consider modifying the **Shell Type** or targeting ligands "
@@ -216,41 +229,8 @@ try:
             "*Note: Threshold boundaries are dynamically computed based on the median values of the validated historical Nano-Drug Delivery Silver Dataset.*"
         )
 
-        # تشفير ذكي ومباشر باستخدام الـ Maps المحفوظة بره الـ sklearn تماماً
-        encoded_dict = {}
-        categorical_features = ['NP_Class', 'INPs_Core', 'Shape', 'Size_Category', 'Zeta_Category', 'Organ or tissue', 'HAS_PEG', 'Shell Type', 'Tumor Site']
-        
-        for col, val in input_dict.items():
-            if col in categorical_features:
-                # لو القيمة موجودة في القاموس خذ كودها، لو غريبة أو فراغ اديها NaN
-                encoded_dict[col] = encoding_maps[col].get(val, np.nan)
-            else:
-                encoded_dict[col] = val
-
-        # تحويل لـ DataFrame بنفس الترتيب الهندسي للـ Features
-        ordered_features = [
-            'NP_Class', 'INPs_Core', 'Shape', 'Size (nm)', 'Size_Category',
-            'Zeta Potential (mv)', 'Zeta_Category', 'Organ or tissue', 'HAS_PEG', 
-            'Shell Type', 'Administration Dosages (mg/kg)', 'Time point (h)', 'Tumor Site'
-        ]
-        input_df = pd.DataFrame([encoded_dict])[ordered_features]
-        
-        # التوقع المباشر
-        prediction = model.predict(input_df)
-
-        tumor_res = "High Retention" if prediction[0][0] == 1 else "Low Retention"
-        selectivity_res = "High Selectivity" if prediction[0][1] == 1 else "Low Selectivity"
-        tumor_class = "status-high" if prediction[0][0] == 1 else "status-low"
-        selectivity_class = "status-high" if prediction[0][1] == 1 else "status-low"
-
-        st.markdown('<div class="result-title"> AI Screening Analysis</div>', unsafe_allow_html=True)
-        res_col1, res_col2 = st.columns(2)
-        with res_col1:
-            st.markdown(f'<div class="metric-card-custom"><div class="metric-label-custom"> Tumor Retention Potential</div><div class="{tumor_class}">{tumor_res}</div></div>', unsafe_allow_html=True)
-        with res_col2:
-            st.markdown(f'<div class="metric-card-custom"><div class="metric-label-custom"> Targeting Selectivity Index</div><div class="{selectivity_class}">{selectivity_res}</div></div>', unsafe_allow_html=True)
-
+    # 10. Footer Attribution Signature
     st.markdown('<div class="footer-note">Powered by XGBoost Classifier · Designed by Alaa Moataz</div>', unsafe_allow_html=True)
 
 except Exception as e:
-    st.error(f"⚠️ حدث خطأ أثناء تشغيل الموديل: {e}")
+    st.error(f"⚠️ An error occurred while running the model: {e}")
