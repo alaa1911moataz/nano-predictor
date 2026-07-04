@@ -156,6 +156,66 @@ try:
             'Tumor Site': str(tumor_site).strip() if tumor_site != "" else "nan"
         }
 
+        encoded_dict = {}
+        categorical_features = ['NP_Class', 'INPs_Core', 'Shape', 'Size_Category', 'Zeta_Category', 'Organ or tissue', 'HAS_PEG', 'Shell Type', 'Tumor Site']
+        
+        for col, val in input_dict.items():
+            if col in categorical_features:
+                encoded_dict[col] = encoding_maps[col].get(val, np.nan)
+            else:
+                encoded_dict[col] = val
+
+        # تحويل لـ DataFrame بنفس الترتيب الهندسي للـ Features
+        ordered_features = [
+            'NP_Class', 'INPs_Core', 'Shape', 'Size (nm)', 'Size_Category',
+            'Zeta Potential (mv)', 'Zeta_Category', 'Organ or tissue', 'HAS_PEG', 
+            'Shell Type', 'Administration Dosages (mg/kg)', 'Time point (h)', 'Tumor Site'
+        ]
+        input_df = pd.DataFrame([encoded_dict])[ordered_features]
+        
+      
+        prediction = model.predict(input_df)
+
+        tumor_res = "High Retention" if prediction[0][0] == 1 else "Low Retention"
+        selectivity_res = "High Selectivity" if prediction[0][1] == 1 else "Low Selectivity"
+        tumor_class = "status-high" if prediction[0][0] == 1 else "status-low"
+        selectivity_class = "status-high" if prediction[0][1] == 1 else "status-low"
+
+      
+        st.markdown('<div class="result-title">🎯 AI Screening Analysis</div>', unsafe_allow_html=True)
+        res_col1, res_col2 = st.columns(2)
+        with res_col1:
+            st.markdown(f'<div class="metric-card-custom"><div class="metric-label-custom">📊 Tumor Retention Potential</div><div class="{tumor_class}">{tumor_res}</div></div>', unsafe_allow_html=True)
+        with res_col2:
+            st.markdown(f'<div class="metric-card-custom"><div class="metric-label-custom">🎯 Targeting Selectivity Index</div><div class="{selectivity_class}">{selectivity_res}</div></div>', unsafe_allow_html=True)
+
+       
+        st.markdown("<br><hr>", unsafe_allow_html=True)
+        st.markdown("### 📚 Evaluation Reference Guide")
+        
+        ref_col1, ref_col2 = st.columns(2)
+        with ref_col1:
+            st.info(
+                "💡 **Tumor Retention Classification:**\n\n"
+                "* **High Retention:** The particle achieves a bio-distribution efficiency **above or equal to the dataset median**. "
+                "This indicates highly promising tumor accumulation suitable for therapeutic delivery.\n"
+                "* **Low Retention:** The accumulation drops **below the dataset median**, suggesting the formulation might need "
+                "surface optimization (e.g., adjusting PEGylation or Size)."
+            )
+            
+        with ref_col2:
+            st.success(
+                "💡 **Targeting Selectivity Index Classification:**\n\n"
+                "* **High Selectivity:** The ratio of nano-particle accumulation in the tumor versus healthy organs is **optimal (>= Median)**, "
+                "signaling minimized off-target side effects.\n"
+                "* **Low Selectivity:** The off-target accumulation is relatively high. Consider modifying the **Shell Type** or targeting ligands "
+                "to enhance specificity."
+            )
+            
+        st.caption(
+            "*Note: Threshold boundaries are dynamically computed based on the median values of the validated historical Nano-Drug Delivery Silver Dataset.*"
+        )
+
         # تشفير ذكي ومباشر باستخدام الـ Maps المحفوظة بره الـ sklearn تماماً
         encoded_dict = {}
         categorical_features = ['NP_Class', 'INPs_Core', 'Shape', 'Size_Category', 'Zeta_Category', 'Organ or tissue', 'HAS_PEG', 'Shell Type', 'Tumor Site']
