@@ -1,3 +1,8 @@
+import sklearn
+import xgboost
+st.write("sklearn version:", sklearn.__version__)
+st.write("xgboost version:", xgboost.__version__)
+
 import streamlit as st
 import pandas as pd
 import numpy as np
