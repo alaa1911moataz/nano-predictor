@@ -3,6 +3,16 @@ import pandas as pd
 import numpy as np
 import joblib
 
+# =========================================================================
+# CRITICAL COMPATIBILITY PATCH FOR SCIKIT-LEARN 1.6+
+# This injects the missing internal class required by older saved models
+import sklearn.compose._column_transformer
+if not hasattr(sklearn.compose._column_transformer, "_RemainderColsList"):
+    class _RemainderColsList(list):
+        pass
+    sklearn.compose._column_transformer._RemainderColsList = _RemainderColsList
+# =========================================================================
+
 # 1. Page Configuration
 st.set_page_config(
     page_title="Nano-Drug Delivery Predictor",
