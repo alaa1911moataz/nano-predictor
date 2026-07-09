@@ -104,12 +104,12 @@ st.markdown("""
 # 6. Optimized Data Loading Resource Cache
 @st.cache_resource
 def load_nano_resources():
-    model = joblib.load('xgboost_nano_classifier_model.pkl')
-    encoding_maps = joblib.load('nano_preprocessor.pkl')
-    return model, encoding_maps
+    # نقوم بتحميل الـ Pipeline الجاهز مباشرة (يحتوي على preprocessor و model معاً)
+    pipeline = joblib.load('xgboost_nano_classifier_model.pkl')
+    return pipeline
 
 try:
-    model, encoding_maps = load_nano_resources()
+    pipeline = load_nano_resources()
 
     # 7. Web Interactive Feature Form Construction
     # Card A: Physical Properties
@@ -118,10 +118,11 @@ try:
     col1, col2 = st.columns(2)
     with col1:
         size = st.number_input("Size (nm)", min_value=1.0, max_value=1000.0, value=100.0)
-        zeta_mv = st.text_input("Zeta Potential (mv) — optional", value="")
+        # تم تغييرها لـ number_input لتمريرها كـ Float مباشرة وتجنب مشاكل التحويل اليدوي لقيم فارغة
+        zeta_mv = st.number_input("Zeta Potential (mv)", min_value=-150.0, max_value=150.0, value=0.0)
     with col2:
-        shape = st.selectbox("Shape", ["", "Spherical", "Rod", "Cylinder", "Discoid", "Cubical"])
-        zeta_cat = st.selectbox("Zeta Category", ["", "Positive", "Negative", "Neutral"])
+        shape = st.selectbox("Shape", ["Spherical", "Rod", "Cylinder", "Discoid", "Cubical"])
+        zeta_cat = st.selectbox("Zeta Category", ["Positive", "Negative", "Neutral"])
     st.markdown('</div>', unsafe_allow_html=True)
 
     # Card B: Composition & Coating
@@ -129,10 +130,11 @@ try:
     st.markdown('<div class="section-label"><span class="section-icon">🧪</span> Composition & Coating</div>', unsafe_allow_html=True)
     col3, col4 = st.columns(2)
     with col3:
-        np_class = st.selectbox("NP Class", ["", "Organic", "Inorganic"])
-        has_peg = st.selectbox("Has PEG", ["", "Yes", "No"])
+        np_class = st.selectbox("NP Class", ["Organic", "Inorganic"])
+        has_peg = st.selectbox("Has PEG", ["Yes", "No"])
     with col4:
-        shell_type = st.selectbox("Shell Type", ["", "PEG", "Cellulose", "Dextran", "Fuc", "HA", "HPMA", "No Stealth Effect", "PKP"])
+        shell_type = st.selectbox("Shell Type", ["PEG", "Cellulose", "Dextran", "Fuc", "HA", "HPMA", "No Stealth Effect", "PKP"])
+        inps_core = st.selectbox("INPs Core", ["Gold", "Silica", "Iron Oxide", "Quantum Dot", "None"]) # ميزة كانت مفقودة بالواجهة
     st.markdown('</div>', unsafe_allow_html=True)
 
     # Card C: Dosing & Target Context
@@ -143,58 +145,52 @@ try:
         dosage = st.number_input("Administration Dosage (mg/kg)", min_value=0.0, max_value=500.0, value=5.0)
         time_point = st.number_input("Time Point (h)", min_value=0.0, max_value=1000.0, value=24.0)
     with col6:
-        tumor_site = st.selectbox("Tumor Site", ["", "Cervix", "Brain", "Breast", "Colon", "Liver", "Lungs", "Lymphoma", "Ovary", "Pancreas", "Prostate", "Sarcoma", "Skin"])
+        tumor_site = st.selectbox("Tumor Site", ["Cervix", "Brain", "Breast", "Colon", "Liver", "Lungs", "Lymphoma", "Ovary", "Pancreas", "Prostate", "Sarcoma", "Skin"])
+        size_category = st.selectbox("Size Category", ["Small", "Medium", "Large"]) # ميزة كانت مفقودة بالواجهة
     st.markdown('</div>', unsafe_allow_html=True)
 
     # 8. Execution Handle on Screening Button Trigger
     predict_clicked = st.button(" Classification Screening", type="primary", use_container_width=True)
 
     if predict_clicked:
-        # Building clean evaluation dictionary mapping
-        input_dict = {
-            'NP_Class': str(np_class).strip() if np_class != "" else "nan",
-            'INPs_Core': "nan", 
-            'Shape': str(shape).strip() if shape != "" else "nan",
-            'Size (nm)': float(size),
-            'Size_Category': "nan",
-            'Zeta Potential (mv)': float(zeta_mv) if zeta_mv.strip() != "" else np.nan,
-            'Zeta_Category': str(zeta_cat).strip() if zeta_cat != "" else "nan",
-            'Organ or tissue': "nan",
-            'HAS_PEG': str(has_peg).strip() if has_peg != "" else "nan",
-            'Shell Type': str(shell_type).strip() if shell_type != "" else "nan",
-            'Administration Dosages (mg/kg)': float(dosage),
-            'Time point (h)': float(time_point),
-            'Tumor Site': str(tumor_site).strip() if tumor_site != "" else "nan"
+        # بناء الـ DataFrame الخام مباشرة بدون ترميز يدوي وبنفس مسميات الـ features في الموديل الجديد
+        # تم تعويض الميزات غير الموجودة في المدخلات بقيم افتراضية كما في تدريب الموديل
+        input_data = {
+            "NP_Class": str(np_class),
+            "INPs_Core": str(inps_core),
+            "Shape": str(shape),
+            "Size (nm)": float(size),
+            "Size_Category": str(size_category),
+            "Zeta Potential (mv)": float(zeta_mv),
+            "Zeta_Category": str(zeta_cat),
+            "Organ or tissue": "Tumor",  # قيمة افتراضية ثابتة أو الأكثر تكراراً طالما لم نطلبها من المستخدم
+            "HAS_PEG": str(has_peg),
+            "Shell Type": str(shell_type),
+            "Administration Dosages (mg/kg)": float(dosage),
+            "Time point (h)": float(time_point),
+            "Tumor Site": str(tumor_site)
         }
 
-        # Safe feature text mapping based on Pandas custom dictionary maps
-        encoded_dict = {}
-        categorical_features = ['NP_Class', 'INPs_Core', 'Shape', 'Size_Category', 'Zeta_Category', 'Organ or tissue', 'HAS_PEG', 'Shell Type', 'Tumor Site']
-        
-        for col, val in input_dict.items():
-            if col in categorical_features:
-                encoded_dict[col] = encoding_maps[col].get(val, np.nan)
-            else:
-                encoded_dict[col] = val
-
-        # Reindexing to match rigorous algorithmic structural feature order
+        # ترتيب الأعمدة ليتطابق تماماً مع متغير features المستخدم في التدريب
         ordered_features = [
-            'NP_Class', 'INPs_Core', 'Shape', 'Size (nm)', 'Size_Category',
-            'Zeta Potential (mv)', 'Zeta_Category', 'Organ or tissue', 'HAS_PEG', 
-            'Shell Type', 'Administration Dosages (mg/kg)', 'Time point (h)', 'Tumor Site'
+            "NP_Class", "INPs_Core", "Shape", "Size (nm)", "Size_Category",
+            "Zeta Potential (mv)", "Zeta_Category", "Organ or tissue",
+            "HAS_PEG", "Shell Type", "Administration Dosages (mg/kg)",
+            "Time point (h)", "Tumor Site"
         ]
-        input_df = pd.DataFrame([encoded_dict])[ordered_features]
         
-        # Parallel model inference execution
-        prediction = model.predict(input_df)
+        input_df = pd.DataFrame([input_data])[ordered_features]
+        
+        # الـ pipeline يقوم بالترميز والتوقع بشكل آلي ومتوازي
+        prediction = pipeline.predict(input_df)
 
-        # Parsing targets status definitions
+        # تحليل نتائج التوقع للمخرجات الثنائية (MultiOutputClassifier)
         tumor_res = "High Retention" if prediction[0][0] == 1 else "Low Retention"
         selectivity_res = "High Selectivity" if prediction[0][1] == 1 else "Low Selectivity"
         tumor_class = "status-high" if prediction[0][0] == 1 else "status-low"
         selectivity_class = "status-high" if prediction[0][1] == 1 else "status-low"
 
-        # Rendering screening glassmorphic results widgets
+        # عرض النتائج في واجهة المستخدم بأسلوب Glassmorphic
         st.markdown('<div class="result-title"> AI Screening Analysis</div>', unsafe_allow_html=True)
         res_col1, res_col2 = st.columns(2)
         with res_col1:
@@ -202,7 +198,7 @@ try:
         with res_col2:
             st.markdown(f'<div class="metric-card-custom"><div class="metric-label-custom"> Targeting Selectivity Index</div><div class="{selectivity_class}">{selectivity_res}</div></div>', unsafe_allow_html=True)
 
-        # 9. Reference Guide Context Section (Scientific Support Documentation)
+        # 9. Reference Guide Context Section
         st.markdown("<br><hr>", unsafe_allow_html=True)
         st.markdown("###  Evaluation Reference Guide")
         
