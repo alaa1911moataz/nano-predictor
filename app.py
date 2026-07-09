@@ -66,8 +66,19 @@ st.markdown(f"""
     .hero-title {{ font-size: 2.6rem; font-weight: 800; line-height: 1.15; background: linear-gradient(100deg, #7C4DFF 0%, #00BFA5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.6rem; }}
     .hero-subtitle {{ color: {subtitle_color}; font-size: 1.02rem; font-weight: 400; max-width: 560px; margin: 0 auto; line-height: 1.6; }}
 
-    .glass-card {{ background: {card_bg}; backdrop-filter: blur(12px); border: 1px solid {card_border}; border-radius: 20px; padding: 1.7rem 1.8rem 0.5rem 1.8rem; margin-bottom: 1.4rem; box-shadow: {shadow}; transition: border 0.25s ease; }}
-    .glass-card:hover {{ border: 1px solid {card_border_hover}; }}
+    /* Targets Streamlit native container block structure safely to apply premium glass styling rules */
+    div[data-testid="stVerticalBlockBorderWrapper"] {{ 
+        background: {card_bg} !important; 
+        backdrop-filter: blur(12px) !important; 
+        border: 1px solid {card_border} !important; 
+        border-radius: 20px !important; 
+        padding: 1.5rem 1.6rem 0.6rem 1.6rem !important; 
+        margin-bottom: 1.4rem !important; 
+        box-shadow: {shadow} !important; 
+        transition: border 0.25s ease !important; 
+    }}
+    div[data-testid="stVerticalBlockBorderWrapper"]:hover {{ border: 1px solid {card_border_hover} !important; }}
+    
     .section-label {{ font-size: 1rem; font-weight: 600; color: {section_title_color}; margin-bottom: 1.1rem; display: flex; align-items: center; gap: 0.55rem; padding-bottom: 0.8rem; border-bottom: 1px solid {card_border}; }}
     .section-icon {{ width: 32px; height: 32px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(124,77,255,0.20), rgba(0,191,165,0.18)); font-size: 1rem; }}
 
@@ -112,39 +123,37 @@ try:
     model, encoding_maps = load_nano_resources()
 
     # 7. Web Interactive Feature Form Construction
+    
     # Card A: Physical Properties
-    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    st.markdown('<div class="section-label"><span class="section-icon">⚙️</span> Physical Properties</div>', unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
-    with col1:
-        size = st.number_input("Size (nm)", min_value=1.0, max_value=1000.0, value=100.0)
-        zeta_mv = st.text_input("Zeta Potential (mv) — optional", value="")
-    with col2:
-        shape = st.selectbox("Shape", ["", "Spherical", "Rod", "Cylinder", "Discoid", "Cubical"])
-        zeta_cat = st.selectbox("Zeta Category", ["", "Positive", "Negative", "Neutral"])
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown('<div class="section-label"><span class="section-icon">⚙️</span> Physical Properties</div>', unsafe_allow_html=True)
+        col1, col2 = st.columns(2)
+        with col1:
+            size = st.number_input("Size (nm)", min_value=1.0, max_value=1000.0, value=100.0)
+            zeta_mv = st.text_input("Zeta Potential (mv) — optional", value="")
+        with col2:
+            shape = st.selectbox("Shape", ["", "Spherical", "Rod", "Cylinder", "Discoid", "Cubical"])
+            zeta_cat = st.selectbox("Zeta Category", ["", "Positive", "Negative", "Neutral"])
 
     # Card B: Composition & Coating
-    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    st.markdown('<div class="section-label"><span class="section-icon">🧪</span> Composition & Coating</div>', unsafe_allow_html=True)
-    col3, col4 = st.columns(2)
-    with col3:
-        np_class = st.selectbox("NP Class", ["", "Organic", "Inorganic"])
-        has_peg = st.selectbox("Has PEG", ["", "Yes", "No"])
-    with col4:
-        shell_type = st.selectbox("Shell Type", ["", "PEG", "Cellulose", "Dextran", "Fuc", "HA", "HPMA", "No Stealth Effect", "PKP"])
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown('<div class="section-label"><span class="section-icon">🧪</span> Composition & Coating</div>', unsafe_allow_html=True)
+        col3, col4 = st.columns(2)
+        with col3:
+            np_class = st.selectbox("NP Class", ["", "Organic", "Inorganic"])
+            has_peg = st.selectbox("Has PEG", ["", "Yes", "No"])
+        with col4:
+            shell_type = st.selectbox("Shell Type", ["", "PEG", "Cellulose", "Dextran", "Fuc", "HA", "HPMA", "No Stealth Effect", "PKP"])
 
     # Card C: Dosing & Target Context
-    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    st.markdown('<div class="section-label"><span class="section-icon">💉</span> Dosing & Target</div>', unsafe_allow_html=True)
-    col5, col6 = st.columns(2)
-    with col5:
-        dosage = st.number_input("Administration Dosage (mg/kg)", min_value=0.0, max_value=500.0, value=5.0)
-        time_point = st.number_input("Time Point (h)", min_value=0.0, max_value=1000.0, value=24.0)
-    with col6:
-        tumor_site = st.selectbox("Tumor Site", ["", "Cervix", "Brain", "Breast", "Colon", "Liver", "Lungs", "Lymphoma", "Ovary", "Pancreas", "Prostate", "Sarcoma", "Skin"])
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown('<div class="section-label"><span class="section-icon">💉</span> Dosing & Target</div>', unsafe_allow_html=True)
+        col5, col6 = st.columns(2)
+        with col5:
+            dosage = st.number_input("Administration Dosage (mg/kg)", min_value=0.0, max_value=500.0, value=5.0)
+            time_point = st.number_input("Time Point (h)", min_value=0.0, max_value=1000.0, value=24.0)
+        with col6:
+            tumor_site = st.selectbox("Tumor Site", ["", "Cervix", "Brain", "Breast", "Colon", "Liver", "Lungs", "Lymphoma", "Ovary", "Pancreas", "Prostate", "Sarcoma", "Skin"])
 
     # 8. Execution Handle on Screening Button Trigger
     predict_clicked = st.button(" Classification Screening", type="primary", use_container_width=True)
@@ -167,25 +176,33 @@ try:
             'Tumor Site': str(tumor_site).strip() if tumor_site != "" else "nan"
         }
 
-        # Safe feature text mapping based on Pandas custom dictionary maps
-        encoded_dict = {}
-        categorical_features = ['NP_Class', 'INPs_Core', 'Shape', 'Size_Category', 'Zeta_Category', 'Organ or tissue', 'HAS_PEG', 'Shell Type', 'Tumor Site']
-        
-        for col, val in input_dict.items():
-            if col in categorical_features:
-                encoded_dict[col] = encoding_maps[col].get(val, np.nan)
-            else:
-                encoded_dict[col] = val
-
-        # Reindexing to match rigorous algorithmic structural feature order
+        # Structural ordered features matching algorithmic model layout exactly
         ordered_features = [
             'NP_Class', 'INPs_Core', 'Shape', 'Size (nm)', 'Size_Category',
             'Zeta Potential (mv)', 'Zeta_Category', 'Organ or tissue', 'HAS_PEG', 
             'Shell Type', 'Administration Dosages (mg/kg)', 'Time point (h)', 'Tumor Site'
         ]
-        input_df = pd.DataFrame([encoded_dict])[ordered_features]
+
+        # Conditional pipeline configuration mapping check
+        if hasattr(model, "named_steps") or hasattr(model, "steps"):
+            # Model is a complete Scikit-Learn Pipeline: pass raw textual/numeric features directly
+            input_df = pd.DataFrame([input_dict])[ordered_features]
+        else:
+            # Model is an isolated XGBoost array estimator: perform encoding mapping manually via maps dictionary
+            encoded_dict = {}
+            categorical_features = ['NP_Class', 'INPs_Core', 'Shape', 'Size_Category', 'Zeta_Category', 'Organ or tissue', 'HAS_PEG', 'Shell Type', 'Tumor Site']
+            
+            for col, val in input_dict.items():
+                if col in categorical_features:
+                    if isinstance(encoding_maps, dict) and col in encoding_maps:
+                        encoded_dict[col] = encoding_maps[col].get(val, np.nan)
+                    else:
+                        encoded_dict[col] = val
+                else:
+                    encoded_dict[col] = val
+            input_df = pd.DataFrame([encoded_dict])[ordered_features]
         
-        # Parallel model inference execution
+        # Model inference execution
         prediction = model.predict(input_df)
 
         # Parsing targets status definitions
@@ -233,4 +250,4 @@ try:
     st.markdown('<div class="footer-note">Powered by XGBoost Classifier · Designed by Alaa Moataz</div>', unsafe_allow_html=True)
 
 except Exception as e:
-    st.error(f"⚠️ An error occurred while running the model: {e}")
+    st.error(f"⚠️ An error occurred while running the model application: {e}")
